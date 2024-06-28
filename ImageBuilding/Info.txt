@@ -1,0 +1,3 @@
+1. System Image = 2023-02-21-raspios-bullseye-arm64.img.xz
+2. Raspberry Pi Kernel version (https://github.com/raspberrypi/linux; 14b35093ca68bf2c81bbc90aace5007142b40b40; rpi-5.15.y)
+3. IBNBD2 Git (Commit Hash: d3265a86f5c8ba727dee9c35a6d3d9345ef8e191)

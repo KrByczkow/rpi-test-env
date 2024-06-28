@@ -1,0 +1,6 @@
+---
+- name: copy dnsmasq.conf file
+  template:
+    src: custom-dnsmasq.conf.j2
+    dest: "{{ rootfs_path }}/etc/dnsmasq.conf"
+    mode: 0644

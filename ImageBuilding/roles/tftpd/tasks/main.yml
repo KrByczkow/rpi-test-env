@@ -1,0 +1,58 @@
+---
+# copy slave.img to /slave.img
+# qemu-nbd create blockdevice (/dev/nbd0) from slave.img (snapshot)
+# mount blockdevice (/dev/nbd0) to /nfs/slave1
+# qemu-nbd create blockdevice (/dev/nbd1) from slave.img (snapshot)
+# mount blockdevice (/dev/nbd1) to /nfs/slave2
+- name: make tftpboot directories
+  file:
+    path: "{{ rootfs_path }}/tftpboot/172.21.18.{{ item }}/"
+    mode: 0777
+    state: directory
+  with_sequence: "start=50 end={{ 49 + slave_count }}"
+
+- name: make slave directories
+  file:
+    path: "{{ rootfs_path }}/nfs/slave{{ item }}"
+    mode: 0777
+    state: directory
+  with_sequence: "start=1 end={{ slave_count }}"
+
+- name: copy slave image
+  copy:
+    src: "{{ slave_image_filename }}"
+    dest: "{{ rootfs_path }}/slave.img"
+
+- name: copy NFS setup script
+  copy:
+    src: nfs-setup.sh
+    dest: "{{ rootfs_path }}/nfs-setup.sh"
+    mode: 0755
+    owner: root
+
+- name: copy NFS setup service
+  copy:
+    src: nfs-setup.service
+    dest: "{{ rootfs_path }}/etc/systemd/system/nfs-setup.service"
+    mode: 0644
+    owner: root
+
+- name: enable NFS setup service
+  file:
+    src: "{{ rootfs_path }}/etc/systemd/system/nfs-setup.service"
+    dest: "{{ rootfs_path }}/etc/systemd/system/multi-user.target.wants/nfs-setup.service"
+    state: link
+
+- name: Configure NFS exports for root partition
+  lineinfile:
+    path: /etc/exports
+    line: "/nfs/slave{{ item }} *(rw,sync,no_subtree_check,no_root_squash)"
+    create: yes
+  with_sequence: "start=1 end={{ slave_count }}"
+
+- name: Configure NFS exports for boot partition
+  lineinfile:
+    path: /etc/exports
+    line: "/tftpboot/172.21.18.{{ item }} *(rw,sync,no_subtree_check,no_root_squash)"
+    create: yes
+  with_sequence: "start=1 end={{ 49 + slave_count }}"

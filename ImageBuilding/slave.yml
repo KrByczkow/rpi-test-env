@@ -1,0 +1,45 @@
+- name: Raspberry Pi Slave configuration
+  hosts: localhost
+  become: yes
+
+  # qemu-nbd
+
+  #sudo ansible-playbook --tags mounter -e 'image_filename=../2023-02-21-raspios-bullseye-arm64.img' -vv slave.yml
+
+  vars:
+    root_config: "{{ ansible_env.HOME }}/rpi_imgsuite"
+    hostname: slave
+    qcow2_image: "{{ hostname }}-image.qcow2"
+
+  pre_tasks:
+    - include_tasks: pretasks.yml
+
+  roles:
+    - role: imagemounter
+      vars:
+        image: "{{ qcow2_image }}"
+        size: '0'
+      tags:
+        - mount
+        - mounter
+    - role: kernel
+      vars:
+        kernel_src: "{{ root_config }}/rpi-linux"
+      tags:
+        - kernel
+        - compilation
+    - role: ibnbd
+      tags:
+        - ibnbd
+        - compilation
+    - role: net
+      vars:
+        config_type: slave
+      tags:
+        - networking
+    - role: imageunmounter
+      vars:
+        image: "{{ qcow2_image }}"
+      tags:
+        - unmount
+        - mounter

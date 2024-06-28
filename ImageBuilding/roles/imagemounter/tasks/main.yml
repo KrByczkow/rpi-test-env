@@ -1,0 +1,48 @@
+---
+- name: Run qemu-img to resize image
+  shell: "qemu-img resize -f qcow2 {{ image }} {{ size }}"
+  when: size != '0'
+
+- name: Attach NBD device
+  shell: "qemu-nbd --connect=/dev/nbd0 {{ image }}"
+
+- name: Include tasks to resize the image
+  include_tasks: img_resize.yml
+  when: size != '0'
+
+- name: Mount boot partition
+  mount:
+    src: "/dev/nbd0p1"
+    path: "{{ bootfs_path }}"
+    fstype: vfat
+    boot: false
+    state: ephemeral
+
+- name: Mount root partition
+  mount:
+    src: "/dev/nbd0p2"
+    path: "{{ rootfs_path }}"
+    fstype: ext4
+    boot: false
+    state: ephemeral
+
+#- name: Loop device setup
+#  losetup:
+#    image: "{{ image }}"
+#  register: loop_device
+
+#- name: Mount boot partition
+#  mount:
+#    src: "{{ loop_device.partitions[0] }}"
+#    path: "{{ bootfs_path }}"
+#    fstype: vfat
+#    boot: false
+#    state: ephemeral
+
+#- name: Mount root partition
+#  mount:
+#    src: "{{ loop_device.partitions[1] }}"
+#    path: "{{ rootfs_path }}"
+#    fstype: ext4
+#    boot: false
+#    state: ephemeral

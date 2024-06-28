@@ -1,0 +1,5 @@
+---
+image_filename: "../2023-02-21-raspios-bullseye-arm64.img"
+image_filename_tmp: "{{ image_filename }}.tmp"
+bootfs_path: "/mnt/bootfs"
+rootfs_path: "/mnt/rootfs"

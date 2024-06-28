@@ -6,7 +6,7 @@ A test environment made for Raspberry Pi's
 
 This describes the build process for the master image.
 
-### build image
+### Manual build (Raspberry Pi Imager)
 The [Raspberry Pi Imager](https://github.com/raspberrypi/rpi-imager) will be needed. Plug in the USB drive or the SD card, and start Raspberry Pi Imager.
 
 ![Screenshot 1](.github/screenshots/Screen1.png)
@@ -60,3 +60,20 @@ iface INTF_NAME inet static
 Replace `INTF_NAME` with the network interface name, `ADDR1` with the static IP address and `ADDR2` with the network mask.
 
 Restart the Raspberry Pi to apply the changes. This will allow the IP address to be accessible on the local network.
+
+## Automatic build
+To build the Raspberry Pi image yourself, you will need the latest version of Ansible installed, and the QEMU Tools installed. A quick rundown on how to install these tools on a Debian-based system:
+
+```shell
+$ sudo apt install python3 python3-pip qemu-utils
+$ pip3 install ansible
+```
+
+Furtherdown, you need to download a Raspberry Pi image. This can be done by going into the [downloads page](https://www.raspberrypi.com/software/operating-systems/), and selecting an image.
+
+Place the image in the root of the repository, and use Ansible to run it. Depending on the image you want, you run:
+
+```shell
+$ sudo ansible-playbook -e "image_filename=path/to/your/raspberrypi.img" -vv ImageBuilding/slave.yml
+$ sudo ansible-playbook -e "image_filename=path/to/your/raspberrypi.img" -e "slave_image_filename=ImageBuilding/slave-image.qcow2" -vv ImageBuilding/master.yml
+```

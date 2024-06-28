@@ -1,0 +1,20 @@
+---
+- name: Unmount boot partition
+  mount:
+    path: "{{ bootfs_path }}"
+    state: unmounted
+    boot: false
+
+- name: Unmount root partition
+  mount:
+    path: "{{ rootfs_path }}"
+    state: unmounted
+    boot: false
+
+#- name: Remove loop device
+#  losetup:
+#    image: "{{ image }}"
+#    action: detach
+
+- name: Disconnect NBD device
+  shell: "qemu-nbd --disconnect /dev/nbd0"
