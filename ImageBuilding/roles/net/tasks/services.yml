@@ -1,0 +1,29 @@
+- set_fact:
+    rootfs_services: "{{ rootfs_path }}/lib/systemd/system"
+
+- name: Enable NetworkManager service (1/3)
+  file:
+    src: "{{ rootfs_services }}/NetworkManager.service"
+    dest: "{{ rootfs_path }}/etc/systemd/system/multi-user.target.wants/NetworkManager.service"
+    state: link
+
+- name: Enable NetworkManager service (2/3)
+  file:
+    src: "{{ rootfs_services }}/NetworkManager-dispatcher.service"
+    dest: "{{ rootfs_path }}/etc/systemd/system/dbus-org.freedesktop.nm-dispatcher.service"
+    state: link
+
+- name: Enable NetworkManager service (3/3)
+  file:
+    src: "{{ rootfs_services }}/NetworkManager-wait-online.service"
+    dest: "{{ rootfs_path }}/etc/systemd/system/network-online.target.wants/NetworkManager-wait-online.service"
+    state: link
+
+- name: Enable SSH service
+  file:
+    src: "{{ rootfs_services }}/ssh.service"
+    dest: "{{ item }}"
+    state: link
+  loop:
+    - "{{ rootfs_path }}/etc/systemd/system/sshd.service"
+    - "{{ rootfs_path }}/etc/systemd/system/multi-user.target.wants/ssh.service"

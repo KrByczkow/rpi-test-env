@@ -1,0 +1,16 @@
+---
+- name: NetworkManager Wi-Fi config copy
+  copy:
+    src: GuestWifi.nmconnection
+    dest: "{{ rootfs_path }}/etc/NetworkManager/system-connections/visitors.nmconnection"
+    mode: 0600
+    owner: root
+
+- name: Configure dnsmasq
+  copy:
+    src: "net-eth0-{{ config_type }}"
+    dest: "{{ rootfs_path }}/etc/network/interfaces.d/eth0"
+    mode: 0644
+    owner: root
+
+- include_tasks: services.yml

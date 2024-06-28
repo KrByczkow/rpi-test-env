@@ -1,0 +1,10 @@
+[Unit]
+Description=NFS Setup
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /nfs-setup.sh
+
+[Install]
+WantedBy=multi-user.target

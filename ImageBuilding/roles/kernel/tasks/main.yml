@@ -1,0 +1,47 @@
+---
+- name: Fetch kernel sources
+  git:
+    repo: "{{ kernel_repo }}"
+    dest: "{{ kernel_src }}"
+    version: "{{ kernel_branch }}"
+    depth: 1
+    clone: true
+
+- name: Configure kernel
+  copy:
+    src: config-5.15.y
+    dest: "{{ kernel_src }}/.config"
+
+- name: Build kernel
+  shell: make -C "{{ kernel_src }}" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- Image modules dtbs -j$(nproc)
+
+- name: Install modules
+  shell: make -C "{{ kernel_src }}" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH="{{ rootfs_path }}" modules_install
+
+- name: Copy kernel image
+  copy:
+    src: "{{ kernel_src }}/arch/arm64/boot/Image"
+    dest: "{{ bootfs_path }}/kernel8.img"
+
+- name: Copy kernel broadcom files
+  copy:
+    src: "{{ item }}"
+    dest: "{{ bootfs_path }}/"
+  with_fileglob:
+    - "{{ kernel_src }}/arch/arm64/boot/dts/broadcom/*.dtb"
+
+- name: Copy kernel overlays files
+  copy:
+    src: "{{ item }}"
+    dest: "{{ bootfs_path }}/overlays/"
+  with_fileglob:
+    - "{{ kernel_src }}/arch/arm64/boot/dts/overlays/*.dtb*"
+
+- name: Copy kernel README files
+  copy:
+    src: "{{ kernel_src }}/arch/arm64/boot/dts/overlays/README"
+    dest: "{{ bootfs_path }}/overlays"
+
+- name: Set global kernel_src fact
+  set_fact:
+    kernel_src: "{{ kernel_src }}"

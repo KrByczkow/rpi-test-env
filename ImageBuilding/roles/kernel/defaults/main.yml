@@ -1,0 +1,4 @@
+---
+kernel_src: "./rpi-linux"
+kernel_branch: "rpi-5.15.y"
+kernel_repo: "https://github.com/raspberrypi/linux"

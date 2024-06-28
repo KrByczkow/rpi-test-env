@@ -1,0 +1,9 @@
+---
+- name: Use parted to resize to max size
+  shell: "parted -s /dev/nbd0 resizepart 2 100%"
+
+- name: Run e2fsck to fix for potential bad blocks
+  shell: "e2fsck -f -y /dev/nbd0p2"
+
+- name: Run resize2fs to fill unallocated space
+  shell: "resize2fs /dev/nbd0p2"

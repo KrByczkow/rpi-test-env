@@ -1,0 +1,19 @@
+# Specify the incoming interface
+interface=eth0
+
+# Disable hosts
+#no-hosts
+
+# Set the DHCP range
+dhcp-range=172.21.18.50,172.21.18.{{ 49 + slave_count }},720h
+
+# Do DHCP logging
+log-dhcp
+
+# Enable TFTP and set TFTP root
+enable-tftp
+tftp-root=/tftpboot
+tftp-unique-root=ip
+
+# Set the name for the PXE Service, and the client system type
+pxe-service=0,"Raspberry Pi Boot"

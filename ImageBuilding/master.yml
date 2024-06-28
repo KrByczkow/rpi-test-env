@@ -1,0 +1,46 @@
+- name: Raspberry Pi Master configuration
+  hosts: localhost
+  become: yes
+
+  # qemu-nbd
+
+  #sudo ansible-playbook --tags mounter -e "image_filename=../2023-02-21-raspios-bullseye-arm64.img" -e "slave_image_filename=../slave.img" -vv master.yml
+
+  vars:
+    hostname: master
+    qcow2_image: "{{ hostname }}-image.qcow2"
+    slave_image_filename: "../slave.img"
+    slave_count: 3
+
+  pre_tasks:
+    - include_tasks: pretasks.yml
+
+  # dhcpd, tftpd
+
+  roles:
+    - role: imagemounter
+      vars:
+        image: "{{ qcow2_image }}"
+        size: '+5G'
+      tags:
+        - mount
+        - mounter
+    - role: dhcpd
+      tags:
+        - dhcp
+        - networking
+    - role: tftpd
+      tags:
+        - tftpd
+        - networking
+    - role: net
+      vars:
+        config_type: master
+      tags:
+        - networking
+    - role: imageunmounter
+      vars:
+        image: "{{ qcow2_image }}"
+      tags:
+        - unmount
+        - mounter

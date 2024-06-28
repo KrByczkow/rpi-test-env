@@ -1,0 +1,4 @@
+---
+ibnbd_repo: "git@gitlab.pb.local:ibnbd/ibnbd2"
+ibnbd_branch: "feature/arm64-fix-rpi"
+ibnbd_src: "{{ root_config }}/ibnbd"

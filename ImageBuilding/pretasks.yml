@@ -1,0 +1,34 @@
+---
+- name: Initialize environment
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ bootfs_path }}"
+    - "{{ rootfs_path }}"
+  tags:
+    - always
+
+#- name: Copy base image
+#  copy:
+#    src: "{{ image_filename }}"
+#    dest: "{{ image_filename_tmp }}"
+#  tags:
+#    - always
+
+- name: Convert base image to qcow2
+  shell: "qemu-img convert -f raw -O qcow2 {{ image_filename }} {{ image_filename }}.qcow2"
+  tags:
+    - always
+
+- name: Create a snapshot from qcow2 base image
+  shell: "qemu-img create -f qcow2 -b {{ image_filename }}.qcow2 -F qcow2 {{ qcow2_image }}"
+  tags:
+    - always
+
+- name: "Prepare nbd module"
+  modprobe:
+    name: nbd
+    state: present
+  tags:
+    - always
